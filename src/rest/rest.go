@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RunAPI(address string) error {
+func RunAPI(address string) {
 	r := gin.Default()
 
 	r.GET("/products", func(c *gin.Context) {
