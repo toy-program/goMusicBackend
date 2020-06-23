@@ -4,34 +4,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RunAPI(address string) {
+// RunAPIWithHandler run api server with handler
+func RunAPIWithHandler(address string, h HandlerInterface) error {
 	r := gin.Default()
 
-	r.GET("/products", func(c *gin.Context) {
-		// 클라이언트에게 상품 목록 반환
-	})
+	r.GET("/products", h.GetProducts)
 
-	r.GET("/promos", func(c *gin.Context) {
-		// 클라이언트에게 프로모션 목록 반환
-	})
+	r.GET("/promos", h.GetPromos)
 
-	r.POST("/users/signin", func(c *gin.Context) {
-		// 사용자 로그인
-	})
+	userGroup := r.Group("/users")
+	{
+		userGroup.POST("", h.AddUser)
+		userGroup.POST("/charge", h.Charge)
+		userGroup.POST("/signin", h.SignIn)
+		userGroup.POST("/:id/signout", h.SignOut)
+		userGroup.GET("/:id/orders", h.GetOrders)
 
-	r.POST("/users", func(c *gin.Context) {
-		// 사용자 추가
-	})
+	}
 
-	r.POST("/users/:id/signout", func(c *gin.Context) {
-		// 해당 ID의 사용자의 주문 내역 조회
-	})
+	return r.Run(address)
+}
 
-	r.GET("/users/:id/orders", func(c *gin.Context) {
-		// 주문 목록 조회
-	})
+// RunAPI run server
+func RunAPI(address string) error {
+	h, err := NewHandler()
+	if err != nil {
+		return err
+	}
 
-	r.POST("/users/charge", func(c *gin.Context) {
-		// 신용카드 결제 처리
-	})
+	return RunAPIWithHandler(address, h)
 }
